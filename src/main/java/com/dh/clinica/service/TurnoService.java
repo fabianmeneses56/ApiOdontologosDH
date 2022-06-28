@@ -6,7 +6,7 @@ import com.dh.clinica.model.Turno;
 import java.util.List;
 import java.util.Optional;
 
-public class TurnoService {
+public class  TurnoService {
 
     private IDao<Turno> turnoRepository;
 

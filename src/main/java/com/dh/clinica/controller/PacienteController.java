@@ -8,6 +8,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/pacientes")
 public class PacienteController {
@@ -53,4 +55,7 @@ public class PacienteController {
 
         return response;
     }
+
+    @GetMapping
+    public ResponseEntity<List<Paciente>> buscarTodos() {return ResponseEntity.ok(pacienteService.buscarTodos());}
 }
