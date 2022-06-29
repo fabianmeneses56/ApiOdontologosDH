@@ -1,13 +1,16 @@
 package com.dh.clinica.repository.impl;
 
 
+import com.dh.clinica.model.Domicilio;
 import com.dh.clinica.model.Odontologo;
 import com.dh.clinica.model.Paciente;
 import com.dh.clinica.repository.IDao;
 import com.dh.clinica.model.Turno;
+import com.dh.clinica.util.Util;
 import org.apache.log4j.Logger;
 
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.List;
 
 public class TurnoDaoH2 implements IDao<Turno> {
@@ -22,6 +25,7 @@ public class TurnoDaoH2 implements IDao<Turno> {
 
     private OdontologoDaoH2 odontologoDaoH2 = new OdontologoDaoH2();
     private PacienteDaoH2 pacienteDaoH2 = new PacienteDaoH2();
+    private DomicilioDaoH2 domicilioDaoH2 = new DomicilioDaoH2();
 
     @Override
     public Turno guardar(Turno turno) {
@@ -33,18 +37,31 @@ public class TurnoDaoH2 implements IDao<Turno> {
             Class.forName(DB_JDBC_DRIVER);
             connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
 
-            Odontologo odontologo =  odontologoDaoH2.guardar(turno.getOdontologo());
-            Paciente paciente = pacienteDaoH2.guardar(turno.getPaciente());
+            Domicilio domicilio = domicilioDaoH2.guardar(turno.getPaciente().getDomicilio());
+            turno.getPaciente().getDomicilio().setId(domicilio.getId());
 
-            turno.getOdontologo().setId(odontologo.getId());
+            Paciente paciente = pacienteDaoH2.guardar(turno.getPaciente());
             turno.getPaciente().setId(paciente.getId());
+
+            Odontologo odontologo =  odontologoDaoH2.guardar(turno.getOdontologo());
+            turno.getOdontologo().setId(odontologo.getId());
+
 
 
 
             preparedStatement = connection.prepareStatement("INSERT INTO turnos(paciente_id,odontologo_id,fecha) VALUES(?,?,?)", Statement.RETURN_GENERATED_KEYS);
 
-            preparedStatement.setString(1,turno.getPaciente());
+            preparedStatement.setInt(1,turno.getPaciente().getId());
+            preparedStatement.setInt(2,turno.getOdontologo().getId());
+            preparedStatement.setDate(3, Util.utilDateToSqlDate(turno.getDate()));
 
+            preparedStatement.executeUpdate();
+            ResultSet keys = preparedStatement.getGeneratedKeys();
+
+            if(keys.next())
+                turno.setId(keys.getInt(1));
+
+            preparedStatement.close();
         }catch (SQLException | ClassNotFoundException throwables){
             throwables.printStackTrace();
         }
@@ -64,11 +81,43 @@ public class TurnoDaoH2 implements IDao<Turno> {
 
     @Override
     public List<Turno> buscarTodos() {
-        return null;
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        List<Turno> turnos = new ArrayList<>();
+
+        try{
+            Class.forName(DB_JDBC_DRIVER);
+            connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+
+            preparedStatement = connection.prepareStatement("SELECT *  FROM turnos");
+
+            ResultSet result = preparedStatement.executeQuery();
+
+            while (result.next()){
+                int idTurno = result.getInt("id");
+                int idPaciente = result.getInt("paciente_id");
+                int idOdontologo = result.getInt("odontologo_id");
+                Date fecha = result.getDate("fecha");
+
+                Paciente paciente = pacienteDaoH2.buscar(idPaciente);
+                Odontologo odontologo = odontologoDaoH2.buscar(idOdontologo);
+
+                Turno turno = new Turno(idTurno,paciente,odontologo,fecha);
+                turnos.add(turno);
+            }
+
+            preparedStatement.close();
+        }catch (SQLException | ClassNotFoundException throwables){
+            throwables.printStackTrace();
+        }
+
+
+        return turnos;
     }
 
-    @Override
+     @Override
     public Turno actualizar(Turno turno) {
         return null;
     }
+
 }

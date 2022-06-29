@@ -3,8 +3,9 @@ package com.dh.clinica.controller;
 import com.dh.clinica.repository.impl.DomicilioDaoH2;
 import com.dh.clinica.repository.impl.OdontologoDaoH2;
 import com.dh.clinica.repository.impl.PacienteDaoH2;
-import com.dh.clinica.repository.impl.TurnoListRepository;
+
 import com.dh.clinica.model.Turno;
+import com.dh.clinica.repository.impl.TurnoDaoH2;
 import com.dh.clinica.service.OdontologoService;
 import com.dh.clinica.service.PacienteService;
 import com.dh.clinica.service.TurnoService;
@@ -19,18 +20,15 @@ import java.util.List;
 public class TurnoController {
 
 
-    private TurnoService turnoService = new TurnoService(new TurnoListRepository());
+    private TurnoService turnoService = new TurnoService(new TurnoDaoH2());
     private PacienteService pacienteService = new PacienteService(new PacienteDaoH2());
     private OdontologoService odontologoService = new OdontologoService(new OdontologoDaoH2());
 
     @PostMapping
     public ResponseEntity<Turno> registrarTurno(@RequestBody Turno turno) {
         ResponseEntity<Turno> response;
-        if (pacienteService.buscar(turno.getPaciente().getId()) != null && odontologoService.buscar(turno.getOdontologo().getId()) != null)
-            response = ResponseEntity.ok(turnoService.registrarTurno(turno));
 
-        else
-            response = ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        response = ResponseEntity.ok(turnoService.registrarTurno(turno));
 
         return response;
 
