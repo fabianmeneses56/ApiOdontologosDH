@@ -1,5 +1,6 @@
 package com.dh.clinica.controller;
 
+import com.dh.clinica.model.Paciente;
 import com.dh.clinica.repository.impl.DomicilioDaoH2;
 import com.dh.clinica.repository.impl.OdontologoDaoH2;
 import com.dh.clinica.repository.impl.PacienteDaoH2;
@@ -26,12 +27,8 @@ public class TurnoController {
 
     @PostMapping
     public ResponseEntity<Turno> registrarTurno(@RequestBody Turno turno) {
-        ResponseEntity<Turno> response;
 
-        response = ResponseEntity.ok(turnoService.registrarTurno(turno));
-
-        return response;
-
+        return ResponseEntity.ok(turnoService.registrarTurno(turno));
 
     }
 
@@ -40,10 +37,17 @@ public class TurnoController {
         return ResponseEntity.ok(turnoService.listar());
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<Turno> buscar(@PathVariable Integer id){
+        Turno turno = turnoService.buscar(id);
+
+        return ResponseEntity.ok(turno);
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<String> eliminar(@PathVariable Integer id) {
-        ResponseEntity<String> response;
-        if (turnoService.buscar(id) != null) { // Esta validacion no esta en el enunciado del ejericio, pero se las dejo para que la tengan.
+        ResponseEntity<String> response = null;
+        if (turnoService.buscar(id) != null) {
             turnoService.eliminar(id);
             response = ResponseEntity.status(HttpStatus.NO_CONTENT).body("Eliminado");
         } else {

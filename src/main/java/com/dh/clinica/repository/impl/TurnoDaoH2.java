@@ -46,9 +46,6 @@ public class TurnoDaoH2 implements IDao<Turno> {
             Odontologo odontologo =  odontologoDaoH2.guardar(turno.getOdontologo());
             turno.getOdontologo().setId(odontologo.getId());
 
-
-
-
             preparedStatement = connection.prepareStatement("INSERT INTO turnos(paciente_id,odontologo_id,fecha) VALUES(?,?,?)", Statement.RETURN_GENERATED_KEYS);
 
             preparedStatement.setInt(1,turno.getPaciente().getId());
@@ -71,12 +68,58 @@ public class TurnoDaoH2 implements IDao<Turno> {
 
     @Override
     public Turno buscar(Integer id) {
-        return null;
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+
+        Turno turno = null;
+
+        try{
+            Class.forName(DB_JDBC_DRIVER);
+            connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+
+            preparedStatement = connection.prepareStatement("SELECT id,paciente_id,odontologo_id,fecha  FROM turnos where id = ?");
+            preparedStatement.setInt(1,id);
+
+            ResultSet result = preparedStatement.executeQuery();
+
+            while (result.next()){
+                int idTurno = result.getInt("id");
+                int idPaciente = result.getInt("paciente_id");
+                int idOdontologo = result.getInt("odontologo_id");
+                Date fecha = result.getDate("fecha");
+
+                Paciente paciente = pacienteDaoH2.buscar(idPaciente);
+                Odontologo odontologo = odontologoDaoH2.buscar(idOdontologo);
+
+                 turno = new Turno(idTurno,paciente,odontologo,fecha);
+            }
+
+            preparedStatement.close();
+        }catch (SQLException | ClassNotFoundException throwables) {
+            throwables.printStackTrace();
+        }
+
+
+        return turno;
     }
 
     @Override
     public void eliminar(Integer id) {
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
 
+        try {
+            Class.forName(DB_JDBC_DRIVER);
+            connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+
+            preparedStatement = connection.prepareStatement("DELETE FROM turnos where id = ?");
+            preparedStatement.setInt(1,id);
+
+            preparedStatement.executeUpdate();
+            preparedStatement.close();
+        }catch (SQLException | ClassNotFoundException throwables) {
+            throwables.printStackTrace();
+        }
     }
 
     @Override
@@ -117,7 +160,30 @@ public class TurnoDaoH2 implements IDao<Turno> {
 
      @Override
     public Turno actualizar(Turno turno) {
-        return null;
+
+         Connection connection = null;
+         PreparedStatement preparedStatement = null;
+
+         try {
+             Class.forName(DB_JDBC_DRIVER);
+             connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+
+             Domicilio domicilio = domicilioDaoH2.actualizar(turno.getPaciente().getDomicilio());
+
+             preparedStatement = connection.prepareStatement("UPDATE turnos SET paciente_id=?, odontologo_id=?, fecha=?  WHERE id = ?");
+
+             preparedStatement.setInt(1,turno.getPaciente().getId());
+             preparedStatement.setInt(2,turno.getOdontologo().getId());
+             preparedStatement.setDate(3, Util.utilDateToSqlDate(turno.getDate()));
+             preparedStatement.setInt(4,turno.getId());
+
+             preparedStatement.executeUpdate();
+             preparedStatement.close();
+
+         }catch (SQLException | ClassNotFoundException throwables) {
+             throwables.printStackTrace();
+         }
+        return turno;
     }
 
 }
