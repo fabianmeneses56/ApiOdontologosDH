@@ -36,7 +36,7 @@ public class TurnoDaoH2 implements IDao<Turno> {
         try {
             Class.forName(DB_JDBC_DRIVER);
             connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
-
+/*
             Domicilio domicilio = domicilioDaoH2.guardar(turno.getPaciente().getDomicilio());
             turno.getPaciente().getDomicilio().setId(domicilio.getId());
 
@@ -45,13 +45,15 @@ public class TurnoDaoH2 implements IDao<Turno> {
 
             Odontologo odontologo =  odontologoDaoH2.guardar(turno.getOdontologo());
             turno.getOdontologo().setId(odontologo.getId());
-
+*/
             preparedStatement = connection.prepareStatement("INSERT INTO turnos(paciente_id,odontologo_id,fecha) VALUES(?,?,?)", Statement.RETURN_GENERATED_KEYS);
 
             preparedStatement.setInt(1,turno.getPaciente().getId());
             preparedStatement.setInt(2,turno.getOdontologo().getId());
             preparedStatement.setDate(3, Util.utilDateToSqlDate(turno.getDate()));
-
+            /*
+            Paciente paciente = pacienteDaoH2.buscar(turno.getPaciente().getId());
+            */
             preparedStatement.executeUpdate();
             ResultSet keys = preparedStatement.getGeneratedKeys();
 
