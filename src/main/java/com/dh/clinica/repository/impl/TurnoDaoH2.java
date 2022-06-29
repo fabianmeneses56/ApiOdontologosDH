@@ -169,6 +169,9 @@ public class TurnoDaoH2 implements IDao<Turno> {
              connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
 
              Domicilio domicilio = domicilioDaoH2.actualizar(turno.getPaciente().getDomicilio());
+             Odontologo odontologo = odontologoDaoH2.actualizar(turno.getOdontologo());
+             Paciente paciente = pacienteDaoH2.actualizar(turno.getPaciente());
+
 
              preparedStatement = connection.prepareStatement("UPDATE turnos SET paciente_id=?, odontologo_id=?, fecha=?  WHERE id = ?");
 
