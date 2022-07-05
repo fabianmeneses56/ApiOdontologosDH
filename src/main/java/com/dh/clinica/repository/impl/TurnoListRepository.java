@@ -2,11 +2,13 @@ package com.dh.clinica.repository.impl;
 
 import com.dh.clinica.repository.IDao;
 import com.dh.clinica.model.Turno;
+import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+@Repository
 public class TurnoListRepository implements IDao<Turno> {
 
     private List<Turno> turnos;

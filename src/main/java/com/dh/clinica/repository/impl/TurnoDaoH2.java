@@ -8,11 +8,13 @@ import com.dh.clinica.repository.IDao;
 import com.dh.clinica.model.Turno;
 import com.dh.clinica.util.Util;
 import org.apache.log4j.Logger;
+import org.springframework.stereotype.Repository;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+@Repository
 public class TurnoDaoH2 implements IDao<Turno> {
 
     final static Logger log = Logger.getLogger(TurnoDaoH2.class);

@@ -3,6 +3,7 @@ package com.dh.clinica.repository.impl;
 import com.dh.clinica.repository.IDao;
 import com.dh.clinica.model.Odontologo;
 import org.apache.log4j.Logger;
+import org.springframework.stereotype.Repository;
 
 
 import java.sql.*;
@@ -10,6 +11,7 @@ import java.util.ArrayList;
 
 import java.util.List;
 
+@Repository
 public class OdontologoDaoH2 implements IDao<Odontologo> {
 
     final static Logger log = Logger.getLogger(OdontologoDaoH2.class);
@@ -189,4 +191,19 @@ public class OdontologoDaoH2 implements IDao<Odontologo> {
         return odontologo;
     }
 
+    private Odontologo crearObjetoOdontologo(ResultSet resultSet) throws SQLException {
+
+        return new Odontologo(resultSet.getInt("id"), resultSet.getString("nombre"), resultSet.getString("apellido"), resultSet.getInt("matricula"));
+    }
+
+    private void execute(Connection connection, String query) {
+        try {
+            Statement statement = connection.createStatement();
+            statement.executeUpdate(query);
+            statement.close();
+            connection.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 }

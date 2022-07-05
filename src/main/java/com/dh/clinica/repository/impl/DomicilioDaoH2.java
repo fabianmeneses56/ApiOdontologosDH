@@ -2,11 +2,13 @@ package com.dh.clinica.repository.impl;
 
 import com.dh.clinica.repository.IDao;
 import com.dh.clinica.model.Domicilio;
+import org.springframework.stereotype.Repository;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+@Repository
 public class DomicilioDaoH2 implements IDao<Domicilio> {
 
     private final static String DB_JDBC_DRIVER = "org.h2.Driver";

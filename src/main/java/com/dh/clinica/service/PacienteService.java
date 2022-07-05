@@ -3,11 +3,13 @@ package com.dh.clinica.service;
 
 import com.dh.clinica.repository.IDao;
 import com.dh.clinica.model.Paciente;
+import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+@Service
 public class PacienteService {
 
     private IDao<Paciente> pacienteIDao;
