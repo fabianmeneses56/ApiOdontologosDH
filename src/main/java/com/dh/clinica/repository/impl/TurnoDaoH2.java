@@ -6,155 +6,108 @@ import com.dh.clinica.model.Odontologo;
 import com.dh.clinica.model.Paciente;
 import com.dh.clinica.repository.IDao;
 import com.dh.clinica.model.Turno;
+import com.dh.clinica.repository.configuration.ConfigurationJDBC;
 import com.dh.clinica.util.Util;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Repository;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Repository
 public class TurnoDaoH2 implements IDao<Turno> {
 
     final static Logger log = Logger.getLogger(TurnoDaoH2.class);
-
-    private final static String DB_JDBC_DRIVER = "org.h2.Driver";
-    //con la instruccion INIT=RUNSCRIPT cuando se conecta a la base ejecuta el script de sql que esta en dicho archivo
-    private final static String DB_URL = "jdbc:h2:~/db_clinica;INIT=RUNSCRIPT FROM 'create.sql'";
-    private final static String DB_USER ="sa";
-    private final static String DB_PASSWORD = "";
-
+    private ConfigurationJDBC configurationJDBC;
     private OdontologoDaoH2 odontologoDaoH2;
     private PacienteDaoH2 pacienteDaoH2;
-    private DomicilioDaoH2 domicilioDaoH2;
+
+    public TurnoDaoH2(OdontologoDaoH2 odontologoDaoH2, PacienteDaoH2 pacienteDaoH2, ConfigurationJDBC configurationJDBC) {
+        this.configurationJDBC = configurationJDBC;
+        this.pacienteDaoH2 = pacienteDaoH2;
+        this.odontologoDaoH2 = odontologoDaoH2;
+    }
 
     @Override
     public Turno guardar(Turno turno) {
         log.debug("guardando un nuevo Turno");
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
+        Connection connection = configurationJDBC.conectarConBaseDeDatos();
+        Statement stmt = null;
+
+        String query = String.format("INSERT INTO turnos(paciente_id,odontologo_id,fecha) VALUES('%s','%s','%s')", turno.getPaciente().getId(),turno.getOdontologo().getId(),
+                Util.utilDateToSqlDate(turno.getDate()));
 
         try {
-            Class.forName(DB_JDBC_DRIVER);
-            connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
-/*
-            Domicilio domicilio = domicilioDaoH2.guardar(turno.getPaciente().getDomicilio());
-            turno.getPaciente().getDomicilio().setId(domicilio.getId());
+            stmt = connection.createStatement();
+            stmt.executeUpdate(query, Statement.RETURN_GENERATED_KEYS);
+            ResultSet keys = stmt.getGeneratedKeys();
 
-            Paciente paciente = pacienteDaoH2.guardar(turno.getPaciente());
-            turno.getPaciente().setId(paciente.getId());
-
-            Odontologo odontologo =  odontologoDaoH2.guardar(turno.getOdontologo());
-            turno.getOdontologo().setId(odontologo.getId());
-*/
-            preparedStatement = connection.prepareStatement("INSERT INTO turnos(paciente_id,odontologo_id,fecha) VALUES(?,?,?)", Statement.RETURN_GENERATED_KEYS);
-
-            preparedStatement.setInt(1,turno.getPaciente().getId());
-            preparedStatement.setInt(2,turno.getOdontologo().getId());
-            preparedStatement.setDate(3, Util.utilDateToSqlDate(turno.getDate()));
-            /*
-            Paciente paciente = pacienteDaoH2.buscar(turno.getPaciente().getId());
-            */
-            preparedStatement.executeUpdate();
-            ResultSet keys = preparedStatement.getGeneratedKeys();
-
-            if(keys.next())
+            if (keys.next())
                 turno.setId(keys.getInt(1));
 
-            preparedStatement.close();
-        }catch (SQLException | ClassNotFoundException throwables){
+            stmt.close();
+            connection.close();
+        }catch (SQLException throwables){
             throwables.printStackTrace();
         }
 
         return turno;
     }
 
+
     @Override
     public Turno buscar(Integer id) {
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
 
+        Connection connection = configurationJDBC.conectarConBaseDeDatos();
+        Statement stmt = null;
+        String query = String.format("SELECT id,paciente_id,odontologo_id,fecha  FROM turnos where id = '%s'", id);
         Turno turno = null;
 
-        try{
-            Class.forName(DB_JDBC_DRIVER);
-            connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
-
-            preparedStatement = connection.prepareStatement("SELECT id,paciente_id,odontologo_id,fecha  FROM turnos where id = ?");
-            preparedStatement.setInt(1,id);
-
-            ResultSet result = preparedStatement.executeQuery();
-
-            while (result.next()){
-                int idTurno = result.getInt("id");
-                int idPaciente = result.getInt("paciente_id");
-                int idOdontologo = result.getInt("odontologo_id");
-                Date fecha = result.getDate("fecha");
-
-                Paciente paciente = pacienteDaoH2.buscar(idPaciente);
-                Odontologo odontologo = odontologoDaoH2.buscar(idOdontologo);
-
-                 turno = new Turno(idTurno,paciente,odontologo,fecha);
+        try {
+            stmt = connection.createStatement();
+            ResultSet result = stmt.executeQuery(query);
+            while (result.next()) {
+                turno = crearObjetoTurno(result);
             }
 
-            preparedStatement.close();
-        }catch (SQLException | ClassNotFoundException throwables) {
+            stmt.close();
+            connection.close();
+        } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
 
-
-        return turno;
+      return turno;
     }
 
     @Override
     public void eliminar(Integer id) {
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
-
-        try {
-            Class.forName(DB_JDBC_DRIVER);
-            connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
-
-            preparedStatement = connection.prepareStatement("DELETE FROM turnos where id = ?");
-            preparedStatement.setInt(1,id);
-
-            preparedStatement.executeUpdate();
-            preparedStatement.close();
-        }catch (SQLException | ClassNotFoundException throwables) {
-            throwables.printStackTrace();
-        }
+        Connection connection = configurationJDBC.conectarConBaseDeDatos();
+        Statement stmt = null;
+        String query = String.format("DELETE FROM turnos where id = %s", id);
+        execute(connection, query);
     }
 
     @Override
     public List<Turno> buscarTodos() {
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
+
+        log.debug("Buscando todos los turnos");
+        Connection connection = configurationJDBC.conectarConBaseDeDatos();
+        Statement stmt = null;
+        String query = "SELECT *  FROM turnos";
         List<Turno> turnos = new ArrayList<>();
 
         try{
-            Class.forName(DB_JDBC_DRIVER);
-            connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+            stmt = connection.createStatement();
+            ResultSet result = stmt.executeQuery(query);
 
-            preparedStatement = connection.prepareStatement("SELECT *  FROM turnos");
-
-            ResultSet result = preparedStatement.executeQuery();
-
-            while (result.next()){
-                int idTurno = result.getInt("id");
-                int idPaciente = result.getInt("paciente_id");
-                int idOdontologo = result.getInt("odontologo_id");
-                Date fecha = result.getDate("fecha");
-
-                Paciente paciente = pacienteDaoH2.buscar(idPaciente);
-                Odontologo odontologo = odontologoDaoH2.buscar(idOdontologo);
-
-                Turno turno = new Turno(idTurno,paciente,odontologo,fecha);
-                turnos.add(turno);
+            while (result.next()) {
+                turnos.add(crearObjetoTurno(result));
             }
 
-            preparedStatement.close();
-        }catch (SQLException | ClassNotFoundException throwables){
+            stmt.close();
+        }catch (SQLException throwables){
             throwables.printStackTrace();
         }
 
@@ -164,33 +117,38 @@ public class TurnoDaoH2 implements IDao<Turno> {
 
      @Override
     public Turno actualizar(Turno turno) {
+         log.debug("Actualizando un turno: " + turno.toString());
+         Connection connection = configurationJDBC.conectarConBaseDeDatos();
 
-         Connection connection = null;
-         PreparedStatement preparedStatement = null;
+         String query = String.format("UPDATE turnos SET fecha='%s' WHERE id = '%s'", Util.utilDateToSqlDate(turno.getDate()),turno.getId() );
 
-         try {
-             Class.forName(DB_JDBC_DRIVER);
-             connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+         execute(connection, query);
 
-             Domicilio domicilio = domicilioDaoH2.actualizar(turno.getPaciente().getDomicilio());
-             Odontologo odontologo = odontologoDaoH2.actualizar(turno.getOdontologo());
-             Paciente paciente = pacienteDaoH2.actualizar(turno.getPaciente());
-
-
-             preparedStatement = connection.prepareStatement("UPDATE turnos SET paciente_id=?, odontologo_id=?, fecha=?  WHERE id = ?");
-
-             preparedStatement.setInt(1,turno.getPaciente().getId());
-             preparedStatement.setInt(2,turno.getOdontologo().getId());
-             preparedStatement.setDate(3, Util.utilDateToSqlDate(turno.getDate()));
-             preparedStatement.setInt(4,turno.getId());
-
-             preparedStatement.executeUpdate();
-             preparedStatement.close();
-
-         }catch (SQLException | ClassNotFoundException throwables) {
-             throwables.printStackTrace();
-         }
         return turno;
+     }
+
+    private Turno crearObjetoTurno(ResultSet result) throws SQLException {
+
+        int idTurno = result.getInt("id");
+        int idPaciente = result.getInt("paciente_id");
+        int idOdontologo = result.getInt("odontologo_id");
+        Date fecha = result.getDate("fecha");
+
+        Paciente paciente = pacienteDaoH2.buscar(idPaciente);
+        Odontologo odontologo = odontologoDaoH2.buscar(idOdontologo);
+
+        return new Turno(idTurno,paciente,odontologo,fecha);
+
     }
 
+    private void execute(Connection connection, String query) {
+        try {
+            Statement statement = connection.createStatement();
+            statement.executeUpdate(query);
+            statement.close();
+            connection.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 }
