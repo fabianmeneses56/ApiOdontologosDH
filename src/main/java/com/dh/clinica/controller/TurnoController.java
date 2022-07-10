@@ -1,12 +1,6 @@
 package com.dh.clinica.controller;
 
-import com.dh.clinica.model.Paciente;
-import com.dh.clinica.repository.impl.DomicilioDaoH2;
-import com.dh.clinica.repository.impl.OdontologoDaoH2;
-import com.dh.clinica.repository.impl.PacienteDaoH2;
-
 import com.dh.clinica.model.Turno;
-import com.dh.clinica.repository.impl.TurnoDaoH2;
 import com.dh.clinica.service.OdontologoService;
 import com.dh.clinica.service.PacienteService;
 import com.dh.clinica.service.TurnoService;
@@ -16,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/turnos")
@@ -41,10 +36,8 @@ public class TurnoController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Turno> buscar(@PathVariable Integer id){
-        Turno turno = turnoService.buscar(id);
-
-        return ResponseEntity.ok(turno);
+    public ResponseEntity<Optional<Turno>> buscar(@PathVariable Integer id){
+        return ResponseEntity.ok(turnoService.buscar(id));
     }
 
     @DeleteMapping("/{id}")

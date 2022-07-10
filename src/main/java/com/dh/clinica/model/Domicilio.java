@@ -1,9 +1,14 @@
 package com.dh.clinica.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import javax.persistence.*;
 
 @Entity
 @Table(name = "domicilios")
+
+@JsonIgnoreProperties(value={"hibernateLazyInitializer"})
+
 public class Domicilio {
 
     @Id

@@ -1,28 +1,45 @@
 package com.dh.clinica.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+import javax.persistence.*;
 import java.util.Date;
 
-public class Turno {
+@Entity
+@Table(name = "turnos")
 
+@JsonIgnoreProperties(value = {"hibernateLazyInitializer"})
+
+public class Turno {
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Integer id;
-    private Integer id_paciente;
-    private Integer id_odontologo;
+
+    @ManyToOne(fetch = FetchType.LAZY ,cascade = CascadeType.MERGE)
+    @JoinColumn(name = "paciente_id",referencedColumnName = "id")
+    private Paciente paciente;
+
+    @ManyToOne(fetch = FetchType.LAZY ,cascade = CascadeType.MERGE)
+    @JoinColumn(name = "odontologo_id",referencedColumnName = "id")
+    private Odontologo odontologo;
+
+    @Column
     private Date date;
 
     public Turno() {
 
     }
 
-    public Turno(Integer id, Integer id_paciente, Integer id_odontologo, Date date) {
+    public Turno(Integer id,Paciente paciente, Odontologo odontologo, Date date) {
         this.id = id;
-        this.id_paciente = id_paciente;
-        this.id_odontologo = id_odontologo;
+        this.paciente = paciente;
+        this.odontologo = odontologo;
         this.date = date;
     }
 
-    public Turno(Integer id_paciente, Integer id_odontologo, Date date) {
-        this.id_paciente = id_paciente;
-        this.id_odontologo = id_odontologo;
+    public Turno(Paciente paciente, Odontologo odontologo, Date date) {
+        this.paciente = paciente;
+        this.odontologo = odontologo;
         this.date = date;
     }
 
@@ -34,20 +51,20 @@ public class Turno {
         this.id = id;
     }
 
-    public Integer getId_paciente() {
-        return id_paciente;
+    public Paciente getPaciente() {
+        return paciente;
     }
 
-    public void setId_paciente(Integer id_paciente) {
-        this.id_paciente = id_paciente;
+    public void setPaciente(Paciente paciente) {
+        this.paciente = paciente;
     }
 
-    public Integer getId_odontologo() {
-        return id_odontologo;
+    public Odontologo getOdontologo() {
+        return odontologo;
     }
 
-    public void setId_odontologo(Integer id_odontologo) {
-        this.id_odontologo = id_odontologo;
+    public void setOdontologo(Odontologo odontologo) {
+        this.odontologo = odontologo;
     }
 
     public Date getDate() {
@@ -62,8 +79,8 @@ public class Turno {
     public String toString() {
         return "Turno{" +
                 "id=" + id +
-                ", id_paciente=" + id_paciente +
-                ", id_odontologo=" + id_odontologo +
+                ", paciente=" + paciente +
+                ", odontologo=" + odontologo +
                 ", date=" + date +
                 '}';
     }

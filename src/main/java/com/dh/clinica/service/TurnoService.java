@@ -1,7 +1,8 @@
 package com.dh.clinica.service;
 
-import com.dh.clinica.repository.IDao;
 import com.dh.clinica.model.Turno;
+import com.dh.clinica.repository.TurnoRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -10,26 +11,23 @@ import java.util.Optional;
 @Service
 public class  TurnoService {
 
-    private IDao<Turno> turnoRepository;
-
-    public TurnoService(IDao<Turno> turnoRepository) {
-        this.turnoRepository = turnoRepository;
-    }
+    @Autowired
+    TurnoRepository repository;
 
     public Turno registrarTurno(Turno turno){
-        return  turnoRepository.guardar(turno);
+        return  repository.save(turno);
     }
     public List<Turno> listar(){
-        return turnoRepository.buscarTodos();
+        return repository.findAll();
     }
     public void eliminar(Integer id){
-        turnoRepository.eliminar(id);
+        repository.deleteById(id);
     }
     public Turno actualizar(Turno turno){
-        return turnoRepository.actualizar(turno);
+        return repository.save(turno);
     }
-    public Turno buscar(Integer id){
-        return turnoRepository.buscar(id);
+    public Optional<Turno> buscar(Integer id){
+        return  repository.findById(id);
     }
 
 }

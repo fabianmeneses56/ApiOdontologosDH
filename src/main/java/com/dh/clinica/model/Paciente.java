@@ -1,5 +1,6 @@
 package com.dh.clinica.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.persistence.*;
@@ -7,6 +8,9 @@ import java.util.Date;
 
 @Entity
 @Table(name = "pacientes")
+
+@JsonIgnoreProperties(value={"hibernateLazyInitializer"})
+
 public class Paciente {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
@@ -19,7 +23,7 @@ public class Paciente {
     private String dni;
     @Column
     private Date fechaIngreso;
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
     @JoinColumn(name = "domicilio_id", referencedColumnName = "id")
     private Domicilio domicilio;
 
