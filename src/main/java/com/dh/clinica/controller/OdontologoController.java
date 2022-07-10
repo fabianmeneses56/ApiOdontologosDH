@@ -1,5 +1,6 @@
 package com.dh.clinica.controller;
 
+import com.dh.clinica.exceptions.BadRequestException;
 import com.dh.clinica.model.Odontologo;
 
 import com.dh.clinica.service.OdontologoService;
@@ -20,7 +21,7 @@ public class OdontologoController {
     private OdontologoService odontologoService;
 
     @PostMapping()
-    public ResponseEntity<Odontologo> registrarOdontologo(@RequestBody Odontologo odontologo) {
+    public ResponseEntity<Odontologo> registrarOdontologo(@RequestBody Odontologo odontologo) throws BadRequestException {
 
         return ResponseEntity.ok(odontologoService.registrarOdontologo(odontologo));
 
@@ -34,7 +35,7 @@ public class OdontologoController {
     }
 
     @PutMapping()
-    public ResponseEntity<Odontologo> actualizar(@RequestBody Odontologo odontologo) {
+    public ResponseEntity<Odontologo> actualizar(@RequestBody Odontologo odontologo) throws BadRequestException {
         ResponseEntity<Odontologo> response = null;
 
         if (odontologo.getId() != null && odontologoService.buscar(odontologo.getId()) != null)

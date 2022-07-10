@@ -1,5 +1,6 @@
 package com.dh.clinica.controller;
 
+import com.dh.clinica.exceptions.BadRequestException;
 import com.dh.clinica.model.Paciente;
 import com.dh.clinica.service.PacienteService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +19,7 @@ public class PacienteController {
     private PacienteService pacienteService;
 
     @PostMapping()
-    public ResponseEntity<Paciente> registrarPaciente(@RequestBody Paciente paciente) {
+    public ResponseEntity<Paciente> registrarPaciente(@RequestBody Paciente paciente) throws BadRequestException {
 
         return ResponseEntity.ok(pacienteService.guardar(paciente));
 
@@ -30,7 +31,7 @@ public class PacienteController {
     }
 
     @PutMapping()
-    public ResponseEntity<Paciente> actualizar(@RequestBody Paciente paciente) {
+    public ResponseEntity<Paciente> actualizar(@RequestBody Paciente paciente) throws BadRequestException {
         ResponseEntity<Paciente> response = null;
 
         if (paciente.getId() != null && pacienteService.buscar(paciente.getId()) != null)

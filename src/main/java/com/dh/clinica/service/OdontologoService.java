@@ -1,5 +1,6 @@
 package com.dh.clinica.service;
 
+import com.dh.clinica.exceptions.BadRequestException;
 import com.dh.clinica.model.Odontologo;
 import com.dh.clinica.repository.OdontologoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +17,17 @@ public class OdontologoService {
     @Autowired
    OdontologoRepository repository;
 
-    public Odontologo registrarOdontologo(Odontologo odontologo) {
+    public Odontologo registrarOdontologo(Odontologo odontologo) throws BadRequestException {
+
+        if(odontologo.getNombre() == null)
+            throw new BadRequestException("El odontologo debe contener un Nombre");
+
+        if(odontologo.getApellido() == null)
+            throw new BadRequestException("El odontologo debe contener un Apellido");
+
+        if(odontologo.getMatricula() == null)
+            throw new BadRequestException("El odontologo debe contener un Matricula");
+
         return repository.save(odontologo);
 
     }
@@ -33,7 +44,17 @@ public class OdontologoService {
         return repository.findAll();
     }
 
-    public Odontologo actualizar(Odontologo odontologo) {
+    public Odontologo actualizar(Odontologo odontologo) throws BadRequestException {
+
+        if(odontologo.getNombre() == null)
+            throw new BadRequestException("El odontologo debe contener un Nombre");
+
+        if(odontologo.getApellido() == null)
+            throw new BadRequestException("El odontologo debe contener un Apellido");
+
+        if(odontologo.getMatricula() == null)
+            throw new BadRequestException("El odontologo debe contener un Matricula");
+
         return  repository.save(odontologo);
     }
 

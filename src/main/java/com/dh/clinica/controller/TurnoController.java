@@ -1,5 +1,6 @@
 package com.dh.clinica.controller;
 
+import com.dh.clinica.exceptions.BadRequestException;
 import com.dh.clinica.model.Turno;
 import com.dh.clinica.service.OdontologoService;
 import com.dh.clinica.service.PacienteService;
@@ -24,7 +25,7 @@ public class TurnoController {
     private OdontologoService odontologoService;
 
     @PostMapping
-    public ResponseEntity<Turno> registrarTurno(@RequestBody Turno turno) {
+    public ResponseEntity<Turno> registrarTurno(@RequestBody Turno turno) throws BadRequestException {
 
         return ResponseEntity.ok(turnoService.registrarTurno(turno));
 
@@ -53,7 +54,7 @@ public class TurnoController {
     }
 
     @PutMapping
-    public ResponseEntity<Turno> actualizarTurno(@RequestBody Turno turno) {
+    public ResponseEntity<Turno> actualizarTurno(@RequestBody Turno turno) throws BadRequestException {
         return ResponseEntity.ok(turnoService.actualizar(turno));
 
     }
