@@ -5,24 +5,24 @@ import java.util.Date;
 public class Turno {
 
     private Integer id;
-    private Paciente paciente;
-    private Odontologo odontologo;
+    private Integer id_paciente;
+    private Integer id_odontologo;
     private Date date;
 
     public Turno() {
 
     }
 
-    public Turno(Integer id, Paciente paciente, Odontologo odontologo, Date date) {
+    public Turno(Integer id, Integer id_paciente, Integer id_odontologo, Date date) {
         this.id = id;
-        this.paciente = paciente;
-        this.odontologo = odontologo;
+        this.id_paciente = id_paciente;
+        this.id_odontologo = id_odontologo;
         this.date = date;
     }
 
-    public Turno(Paciente paciente, Odontologo odontologo, Date date) {
-        this.paciente = paciente;
-        this.odontologo = odontologo;
+    public Turno(Integer id_paciente, Integer id_odontologo, Date date) {
+        this.id_paciente = id_paciente;
+        this.id_odontologo = id_odontologo;
         this.date = date;
     }
 
@@ -34,20 +34,20 @@ public class Turno {
         this.id = id;
     }
 
-    public Paciente getPaciente() {
-        return paciente;
+    public Integer getId_paciente() {
+        return id_paciente;
     }
 
-    public void setPaciente(Paciente paciente) {
-        this.paciente = paciente;
+    public void setId_paciente(Integer id_paciente) {
+        this.id_paciente = id_paciente;
     }
 
-    public Odontologo getOdontologo() {
-        return odontologo;
+    public Integer getId_odontologo() {
+        return id_odontologo;
     }
 
-    public void setOdontologo(Odontologo odontologo) {
-        this.odontologo = odontologo;
+    public void setId_odontologo(Integer id_odontologo) {
+        this.id_odontologo = id_odontologo;
     }
 
     public Date getDate() {
@@ -62,8 +62,8 @@ public class Turno {
     public String toString() {
         return "Turno{" +
                 "id=" + id +
-                ", paciente=" + paciente +
-                ", odontologo=" + odontologo +
+                ", id_paciente=" + id_paciente +
+                ", id_odontologo=" + id_odontologo +
                 ", date=" + date +
                 '}';
     }

@@ -36,7 +36,7 @@ public class TurnoDaoH2 implements IDao<Turno> {
         Connection connection = configurationJDBC.conectarConBaseDeDatos();
         Statement stmt = null;
 
-        String query = String.format("INSERT INTO turnos(paciente_id,odontologo_id,fecha) VALUES('%s','%s','%s')", turno.getPaciente().getId(),turno.getOdontologo().getId(),
+        String query = String.format("INSERT INTO turnos(paciente_id,odontologo_id,fecha) VALUES('%s','%s','%s')", turno.getId_paciente(),turno.getId_odontologo(),
                 Util.utilDateToSqlDate(turno.getDate()));
 
         try {
@@ -134,10 +134,7 @@ public class TurnoDaoH2 implements IDao<Turno> {
         int idOdontologo = result.getInt("odontologo_id");
         Date fecha = result.getDate("fecha");
 
-        Paciente paciente = pacienteDaoH2.buscar(idPaciente);
-        Odontologo odontologo = odontologoDaoH2.buscar(idOdontologo);
-
-        return new Turno(idTurno,paciente,odontologo,fecha);
+        return new Turno(idTurno,idPaciente,idOdontologo,fecha);
 
     }
 
