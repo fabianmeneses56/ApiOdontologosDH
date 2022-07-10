@@ -1,6 +1,5 @@
 package com.dh.clinica.controller;
 
-import com.dh.clinica.repository.impl.OdontologoDaoH2;
 import com.dh.clinica.model.Odontologo;
 
 import com.dh.clinica.service.OdontologoService;
@@ -10,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 
 @RestController
@@ -27,10 +27,10 @@ public class OdontologoController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Odontologo> buscar(@PathVariable Integer id) {
-        Odontologo odontologo = odontologoService.buscar(id);
+    public ResponseEntity<Optional<Odontologo>> buscar(@PathVariable Integer id) {
 
-        return ResponseEntity.ok(odontologo);
+
+        return ResponseEntity.ok(odontologoService.buscar(id));
     }
 
     @PutMapping()

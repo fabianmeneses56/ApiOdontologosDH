@@ -1,10 +1,19 @@
 package com.dh.clinica.model;
 
+import javax.persistence.*;
+
+@Entity
+@Table(name = "Odontologos")
 public class Odontologo {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Integer id;
+    @Column
     private String nombre;
+    @Column
     private String apellido;
+    @Column
     private Integer matricula;
 
     public Odontologo() {
