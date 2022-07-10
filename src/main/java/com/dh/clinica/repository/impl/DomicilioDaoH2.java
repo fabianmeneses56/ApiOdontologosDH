@@ -2,6 +2,7 @@ package com.dh.clinica.repository.impl;
 
 import com.dh.clinica.repository.IDao;
 import com.dh.clinica.model.Domicilio;
+import com.dh.clinica.repository.configuration.ConfigurationJDBC;
 import org.springframework.stereotype.Repository;
 
 import java.sql.*;
@@ -11,100 +12,62 @@ import java.util.List;
 @Repository
 public class DomicilioDaoH2 implements IDao<Domicilio> {
 
-    private final static String DB_JDBC_DRIVER = "org.h2.Driver";
-    //con la instruccion INIT=RUNSCRIPT cuando se conecta a la base ejecuta el script de sql que esta en dicho archivo
-    private final static String DB_URL = "jdbc:h2:~/db_clinica;INIT=RUNSCRIPT FROM 'create.sql'";
-    private final static String DB_USER ="sa";
-    private final static String DB_PASSWORD = "";
+   private ConfigurationJDBC configurationJDBC;
 
+    public DomicilioDaoH2(ConfigurationJDBC configuracionJDBC) {
+        this.configurationJDBC = configuracionJDBC;
+    }
 
     @Override
     public Domicilio guardar(Domicilio domicilio) {
 
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
+        Connection connection = configurationJDBC.conectarConBaseDeDatos();
+        Statement stmt = null;
+        String query = String.format("INSERT INTO domicilios(calle,numero,localidad,provincia) VALUES('%s','%s','%s','%s')", domicilio.getCalle(),
+                domicilio.getNumero(), domicilio.getLocalidad(), domicilio.getProvincia());
 
         try {
-            //1 Levantar el driver y Conectarnos
-            Class.forName(DB_JDBC_DRIVER);
-            connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
-
-            //2 Crear una sentencia especificando que el ID lo auto incrementa la base de datos y que nos devuelva esa Key es decir ID
-            preparedStatement = connection.prepareStatement("INSERT INTO domicilios(calle,numero,localidad,provincia) VALUES(?,?,?,?)",Statement.RETURN_GENERATED_KEYS);
-            //No le vamos a pasar el ID ya que hicimos que fuera autoincremental en la base de datos
-            //preparedStatement.setInt(1,domicilio.getId());
-            preparedStatement.setString(1, domicilio.getCalle());
-            preparedStatement.setString(2, domicilio.getNumero());
-            preparedStatement.setString(3, domicilio.getLocalidad());
-            preparedStatement.setString(4, domicilio.getProvincia());
-
-            //3 Ejecutar una sentencia SQL y obtener los ID que se autogeneraron en la base de datos
-            preparedStatement.executeUpdate();
-            ResultSet keys = preparedStatement.getGeneratedKeys();
-            if(keys.next())
+            stmt = connection.createStatement();
+            stmt.executeUpdate(query, Statement.RETURN_GENERATED_KEYS);
+            ResultSet keys = stmt.getGeneratedKeys();
+            if (keys.next())
                 domicilio.setId(keys.getInt(1));
-
-            preparedStatement.close();
-
-        } catch (SQLException | ClassNotFoundException throwables) {
+            stmt.close();
+            connection.close();
+        } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
+
         return domicilio;
     }
 
     @Override
     public void eliminar(Integer id) {
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
-        try {
-            //1 Levantar el driver y Conectarnos
-            Class.forName(DB_JDBC_DRIVER);
-            connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
-
-            //2 Crear una sentencia
-            preparedStatement = connection.prepareStatement("DELETE FROM domicilios where id = ?");
-            preparedStatement.setInt(1,id);
-
-            //3 Ejecutar una sentencia SQL
-            preparedStatement.executeUpdate();
-            preparedStatement.close();
-        } catch (SQLException | ClassNotFoundException throwables) {
-            throwables.printStackTrace();
-        }
+        Connection connection = configurationJDBC.conectarConBaseDeDatos();
+        Statement stmt = null;
+        String query = String.format("DELETE FROM domicilios where id = %s", id);
+        execute(connection, query);
 
 
     }
 
     @Override
     public Domicilio buscar(Integer id) {
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
+        Connection connection = configurationJDBC.conectarConBaseDeDatos();
+        Statement stmt = null;
+        String query = String.format("SELECT id,calle,numero,localidad,provincia FROM domicilios where id = '%s'", id);
         Domicilio domicilio = null;
+
         try {
-            //1 Levantar el driver y Conectarnos
-            Class.forName(DB_JDBC_DRIVER);
-            connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
-
-            //2 Crear una sentencia
-            preparedStatement = connection.prepareStatement("SELECT id,calle,numero,localidad,provincia FROM domicilios where id = ?");
-            preparedStatement.setInt(1,id);
-
-            //3 Ejecutar una sentencia SQL
-            ResultSet result = preparedStatement.executeQuery();
-
-            //4 Obtener resultados
+            stmt = connection.createStatement();
+            ResultSet result = stmt.executeQuery(query);
             while (result.next()) {
-                int idDomicilio = result.getInt("id");
-                String calle = result.getString("calle");
-                String numero = result.getString("numero");
-                String localidad = result.getString("localidad");
-                String provincia = result.getString("provincia");
-
-                domicilio = new Domicilio(idDomicilio,calle,numero,localidad,provincia);
+                domicilio = crearObjetoDomicilio(result);
             }
 
-            preparedStatement.close();
-        } catch (SQLException | ClassNotFoundException throwables) {
+            stmt.close();
+            connection.close();
+        } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
 
@@ -113,37 +76,23 @@ public class DomicilioDaoH2 implements IDao<Domicilio> {
 
     @Override
     public List<Domicilio> buscarTodos() {
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
+        Connection connection = configurationJDBC.conectarConBaseDeDatos();
+        Statement stmt = null;
+        String query = "SELECT *  FROM domicilios";
         List<Domicilio> domicilios = new ArrayList<>();
+
         try {
-            //1 Levantar el driver y Conectarnos
-            Class.forName(DB_JDBC_DRIVER);
-            connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
-
-            //2 Crear una sentencia
-            preparedStatement = connection.prepareStatement("SELECT *  FROM domicilios");
-
-            //3 Ejecutar una sentencia SQL
-            ResultSet result = preparedStatement.executeQuery();
-
-            //4 Obtener resultados
+            stmt = connection.createStatement();
+            ResultSet result = stmt.executeQuery(query);
             while (result.next()) {
 
-                int idDomicilio = result.getInt("id");
-                String calle = result.getString("calle");
-                String numero = result.getString("numero");
-                String localidad = result.getString("localidad");
-                String provincia = result.getString("provincia");
-
-                Domicilio domicilio = new Domicilio(idDomicilio,calle,numero,localidad,provincia);
-
-                domicilios.add(domicilio);
+                domicilios.add(crearObjetoDomicilio(result));
 
             }
 
-            preparedStatement.close();
-        } catch (SQLException | ClassNotFoundException throwables) {
+            stmt.close();
+            connection.close();
+        } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
 
@@ -152,31 +101,32 @@ public class DomicilioDaoH2 implements IDao<Domicilio> {
 
     @Override
     public Domicilio actualizar(Domicilio domicilio) {
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
-
-        try {
-            //1 Levantar el driver y Conectarnos
-            Class.forName(DB_JDBC_DRIVER);
-            connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
-
-             preparedStatement = connection.prepareStatement("UPDATE domicilios SET calle = ?, numero = ? ,localidad = ?, provincia = ?  WHERE id = ?");
-            //No le vamos a pasar el ID ya que hicimos que fuera autoincremental en la base de datos
-            //preparedStatement.setInt(1,domicilio.getId());
-            preparedStatement.setString(1, domicilio.getCalle());
-            preparedStatement.setString(2, domicilio.getNumero());
-            preparedStatement.setString(3, domicilio.getLocalidad());
-            preparedStatement.setString(4, domicilio.getProvincia());
-            preparedStatement.setInt(5, domicilio.getId());
-
-            //3 Ejecutar una sentencia SQL y obtener los ID que se autogeneraron en la base de datos
-            preparedStatement.executeUpdate();
-            preparedStatement.close();
-
-        } catch (SQLException | ClassNotFoundException throwables) {
-            throwables.printStackTrace();
-        }
+        Connection connection = configurationJDBC.conectarConBaseDeDatos();
+        String query = String.format("UPDATE domicilios SET calle = '%s', numero = '%s',localidad = '%s',provincia = '%s'  WHERE id = '%s'",
+                domicilio.getCalle(), domicilio.getNumero(), domicilio.getLocalidad(), domicilio.getProvincia(), domicilio.getId());
+        execute(connection, query);
         return domicilio;
+    }
+
+    private Domicilio crearObjetoDomicilio(ResultSet result) throws SQLException {
+        Integer id = result.getInt("id");
+        String calle = result.getString("calle");
+        String numero = result.getString("numero");
+        String localidad = result.getString("localidad");
+        String provincia = result.getString("provincia");
+        return new Domicilio(id, calle, numero, localidad, provincia);
+
+    }
+
+    private void execute(Connection connection, String query) {
+        try {
+            Statement statement = connection.createStatement();
+            statement.executeUpdate(query);
+            statement.close();
+            connection.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }
 
