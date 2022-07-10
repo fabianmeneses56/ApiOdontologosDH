@@ -1,7 +1,5 @@
 package com.dh.clinica.controller;
 
-import com.dh.clinica.repository.impl.DomicilioDaoH2;
-import com.dh.clinica.repository.impl.PacienteDaoH2;
 import com.dh.clinica.model.Paciente;
 import com.dh.clinica.service.PacienteService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/pacientes")
@@ -26,10 +25,8 @@ public class PacienteController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Paciente> buscar(@PathVariable Integer id) {
-        Paciente paciente = pacienteService.buscar(id);
-
-        return ResponseEntity.ok(paciente);
+    public ResponseEntity<Optional<Paciente>> buscar(@PathVariable Integer id) {
+        return ResponseEntity.ok(pacienteService.buscar(id));
     }
 
     @PutMapping()

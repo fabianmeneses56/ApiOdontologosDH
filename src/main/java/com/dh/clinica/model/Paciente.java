@@ -2,15 +2,25 @@ package com.dh.clinica.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import javax.persistence.*;
 import java.util.Date;
 
+@Entity
+@Table(name = "pacientes")
 public class Paciente {
-
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Integer id;
+    @Column
     private String nombre;
+    @Column
     private String apellido;
+    @Column
     private String dni;
+    @Column
     private Date fechaIngreso;
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "domicilio_id", referencedColumnName = "id")
     private Domicilio domicilio;
 
     public Paciente() {

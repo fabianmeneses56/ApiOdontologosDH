@@ -1,10 +1,21 @@
 package com.dh.clinica.model;
 
+import javax.persistence.*;
+
+@Entity
+@Table(name = "domicilios")
 public class Domicilio {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Integer id;
+    @Column
     private String calle;
+    @Column
     private String numero;
+    @Column
     private String localidad;
+    @Column
     private String provincia;
 
     public Domicilio() {
