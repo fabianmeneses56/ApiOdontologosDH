@@ -25,9 +25,9 @@ public class TurnoDaoH2 implements IDao<Turno> {
     private final static String DB_USER ="sa";
     private final static String DB_PASSWORD = "";
 
-    private OdontologoDaoH2 odontologoDaoH2 = new OdontologoDaoH2();
-    private PacienteDaoH2 pacienteDaoH2 = new PacienteDaoH2();
-    private DomicilioDaoH2 domicilioDaoH2 = new DomicilioDaoH2();
+    private OdontologoDaoH2 odontologoDaoH2;
+    private PacienteDaoH2 pacienteDaoH2;
+    private DomicilioDaoH2 domicilioDaoH2;
 
     @Override
     public Turno guardar(Turno turno) {
