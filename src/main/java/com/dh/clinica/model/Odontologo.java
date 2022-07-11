@@ -21,7 +21,14 @@ public class Odontologo {
     @Column
     private Integer matricula;
 
+    public Odontologo() {
+    }
 
+    public Odontologo(String nombre, String apellido, Integer matricula) {
+        this.nombre = nombre;
+        this.apellido = apellido;
+        this.matricula = matricula;
+    }
 
     public Integer getId() {
         return id;
