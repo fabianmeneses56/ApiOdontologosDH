@@ -1,13 +1,13 @@
 package com.dh.clinica;
 
-
 import com.dh.clinica.exceptions.BadRequestException;
 import com.dh.clinica.model.Domicilio;
 import com.dh.clinica.model.Odontologo;
 import com.dh.clinica.model.Paciente;
-import com.dh.clinica.service.DomicilioService;
+import com.dh.clinica.model.Turno;
+import com.dh.clinica.service.OdontologoService;
 import com.dh.clinica.service.PacienteService;
-
+import com.dh.clinica.service.TurnoService;
 import org.junit.Assert;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -17,45 +17,30 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-
 import java.util.Date;
-import java.util.List;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @RunWith(SpringRunner.class)
 @SpringBootTest
-public class PacienteServiceTests {
+public class TurnoServiceTests {
 
     @Autowired
     private PacienteService pacienteService;
     @Autowired
-    private DomicilioService domicilioService;
+    private OdontologoService odontologoService;
+    @Autowired
+    private TurnoService turnoService;
 
     public void cargarDataSet() throws BadRequestException {
         Domicilio domicilio = new Domicilio("Av Santa fe", "444", "CABA", "Buenos Aires");
         Paciente p = pacienteService.guardar(new Paciente("Santiago", "Paz", "88888888", new Date(), domicilio));
+        this.odontologoService.registrarOdontologo(new Odontologo("Santiago", "Paz", 3455647));
     }
 
     @Test
-    public void cargarNuevoPaciente() throws BadRequestException {
+    public void altaTurnoTest() throws BadRequestException {
         this.cargarDataSet();
-        Domicilio domicilio = new Domicilio("Calle", "123", "Temperley", "Buenos Aires");
-        Paciente p = pacienteService.guardar(new Paciente("Tomas", "Pereyra", "12345678", new Date(), domicilio));
-        Assert.assertNotNull(pacienteService.buscar(p.getId()));
+        turnoService.registrarTurno(new Turno(pacienteService.buscar(1).get(),odontologoService.buscar(1).get(),new Date()));
+        Assert.assertNotNull(turnoService.buscar(1));
     }
-
-    @Test
-    public void eliminarPacienteTest() {
-        pacienteService.eliminar(1);
-        Assert.assertTrue(pacienteService.buscar(1).isEmpty());
-    }
-    @Test
-    public void traerTodos() {
-        List<Paciente> pacientes = pacienteService.buscarTodos();
-        Assert.assertTrue(!pacientes.isEmpty());
-        Assert.assertTrue(pacientes.size() == 1);
-        System.out.println(pacientes);
-    }
-
-
 }

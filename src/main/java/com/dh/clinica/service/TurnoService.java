@@ -19,10 +19,10 @@ public class  TurnoService {
         if( turno.getDate() == null)
             throw new BadRequestException("El turno debe contener una fecha");
 
-        if (turno.getPaciente().getId() == null)
+        if (turno.getPaciente() == null)
             throw new BadRequestException("El turno debe contener una id paciente");
 
-        if (turno.getOdontologo().getId() == null)
+        if (turno.getOdontologo() == null)
             throw new BadRequestException("El turno debe contener una id odontologo");
 
         return  repository.save(turno);

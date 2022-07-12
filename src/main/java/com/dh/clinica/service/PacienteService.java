@@ -19,7 +19,7 @@ public class PacienteService {
 
     public Paciente guardar(Paciente p) throws BadRequestException {
 
-        if(p.getDomicilio().getId() == null)
+        if(p.getDomicilio()== null)
             throw new BadRequestException("El paciente debe contener un domicilio");
 
         if(p.getDni() == null)
